@@ -1,6 +1,32 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 45:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getInclude = void 0;
+function getInclude(all, node) {
+    let include = [];
+    for (const key in all[node]) {
+        if (Object.prototype.hasOwnProperty.call(all, key)) {
+            const element = all[key];
+            if (Object.keys(element).length == 0) {
+                include.push(key);
+                continue;
+            }
+            include.push(...getInclude(all, key));
+        }
+    }
+    return include;
+}
+exports.getInclude = getInclude;
+
+
+/***/ }),
+
 /***/ 109:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -36,16 +62,70 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
-const wait_1 = __nccwpck_require__(817);
+const fs_1 = __nccwpck_require__(747);
+const path_1 = __nccwpck_require__(622);
+const leaf_1 = __nccwpck_require__(45);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const ms = core.getInput('milliseconds');
-            core.debug(`Waiting ${ms} milliseconds ...`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
-            core.debug(new Date().toTimeString());
-            yield (0, wait_1.wait)(parseInt(ms, 10));
-            core.debug(new Date().toTimeString());
-            core.setOutput('time', new Date().toTimeString());
+            const changePaths = core.getInput('change-paths');
+            core.debug(`Chanages ${changePaths} `);
+            const ignorePaths = core.getInput('ignore-paths');
+            core.debug(`Ignores ${ignorePaths} `);
+            const workspace = core.getInput('workspace');
+            core.debug(`Workspace ${workspace}`);
+            const ignores = ignorePaths.split(',');
+            let dirs = [];
+            (0, fs_1.readdirSync)(workspace).forEach(e => {
+                if ((0, fs_1.statSync)((0, path_1.join)(workspace, e)).isDirectory() && !ignores.includes(e)) {
+                    dirs.push(e);
+                }
+            });
+            const depsAll = {};
+            dirs.forEach(p => {
+                depsAll[p] = {};
+                for (const pwd of dirs) {
+                    if (pwd === p) {
+                        continue;
+                    }
+                    const settingsGradle = (0, path_1.join)(workspace, pwd, 'settings.gradle');
+                    if (!(0, fs_1.existsSync)(settingsGradle)) {
+                        continue;
+                    }
+                    let lter = (0, fs_1.readFileSync)(settingsGradle, { encoding: 'utf8' }).matchAll(/includeBuild\s\'([^\']+)\'/g);
+                    while (!lter.next().done) {
+                        const pathInclude = lter.next().value[1];
+                        if (pathInclude instanceof String) {
+                            if (pathInclude.split('/').length > 0 && pathInclude.split('/')[1] === pwd) {
+                                depsAll[pwd][p] = {};
+                            }
+                        }
+                    }
+                }
+            });
+            let leaf = [];
+            let includeNodes = [];
+            changePaths.split(',').forEach(p => {
+                const a = p.split('/')[0].trim();
+                if (ignores.includes(a)) {
+                    return;
+                }
+                if ((0, fs_1.statSync)((0, path_1.join)(workspace, a)).isDirectory()) {
+                    if (includeNodes.includes(a)) {
+                        return;
+                    }
+                    if (Object.keys(depsAll[a]).length == 0) {
+                        leaf.push(a);
+                    }
+                    else {
+                        leaf.push(...(0, leaf_1.getInclude)(depsAll, a));
+                    }
+                }
+            });
+            leaf = Array.from(new Set(leaf));
+            core.setOutput('need_ci', leaf.length > 0);
+            core.setOutput('leaf', leaf);
+            // core.setOutput('time', new Date().toTimeString())
         }
         catch (error) {
             if (error instanceof Error)
@@ -54,37 +134,6 @@ function run() {
     });
 }
 run();
-
-
-/***/ }),
-
-/***/ 817:
-/***/ (function(__unused_webpack_module, exports) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.wait = void 0;
-function wait(milliseconds) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise(resolve => {
-            if (isNaN(milliseconds)) {
-                throw new Error('milliseconds not a number');
-            }
-            setTimeout(() => resolve('done!'), milliseconds);
-        });
-    });
-}
-exports.wait = wait;
 
 
 /***/ }),
