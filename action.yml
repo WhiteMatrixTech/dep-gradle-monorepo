@@ -1,11 +1,19 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Dep Gradle Monorepo'
+description: 'scanning service on gradle monorepo'
+author: 'lwnmengjing'
 inputs:
-  milliseconds: # change this
+  change-paths: 
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'change paths'
+    default: ''
+  ignore-paths:
+    required: true
+    description: 'ignore scanning paths'
+    default: '.github,.git'
+  workspace:
+    required: true
+    description: 'workspace'
+    default: '${{ github.workspace }}'
 runs:
   using: 'node12'
   main: 'dist/index.js'
