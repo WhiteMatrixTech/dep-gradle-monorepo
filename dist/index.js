@@ -9,11 +9,11 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getInclude = void 0;
 function getInclude(all, node) {
-    let include = [];
+    const include = [];
     for (const key in all[node]) {
         if (Object.prototype.hasOwnProperty.call(all, key)) {
             const element = all[key];
-            if (Object.keys(element).length == 0) {
+            if (Object.keys(element).length === 0) {
                 include.push(key);
                 continue;
             }
@@ -62,70 +62,60 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
-const fs_1 = __nccwpck_require__(747);
-const path_1 = __nccwpck_require__(622);
 const leaf_1 = __nccwpck_require__(45);
+const fs_1 = __nccwpck_require__(147);
+const path_1 = __nccwpck_require__(17);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const changePaths = core.getInput('change-paths');
-            core.debug(`Chanages ${changePaths} `);
             const ignorePaths = core.getInput('ignore-paths');
-            core.debug(`Ignores ${ignorePaths} `);
             const workspace = core.getInput('workspace');
-            core.debug(`Workspace ${workspace}`);
             const ignores = ignorePaths.split(',');
-            let dirs = [];
-            (0, fs_1.readdirSync)(workspace).forEach(e => {
+            const dirs = [];
+            for (const e of (0, fs_1.readdirSync)(workspace)) {
                 if ((0, fs_1.statSync)((0, path_1.join)(workspace, e)).isDirectory() && !ignores.includes(e)) {
                     dirs.push(e);
                 }
-            });
+            }
             const depsAll = {};
-            dirs.forEach(p => {
-                depsAll[p] = {};
-                for (const pwd of dirs) {
+            for (const pwd of dirs) {
+                depsAll[pwd] = {};
+                for (const p of dirs) {
                     if (pwd === p) {
                         continue;
                     }
-                    const settingsGradle = (0, path_1.join)(workspace, pwd, 'settings.gradle');
+                    const settingsGradle = (0, path_1.join)(workspace, p, 'settings.gradle');
                     if (!(0, fs_1.existsSync)(settingsGradle)) {
                         continue;
                     }
-                    let lter = (0, fs_1.readFileSync)(settingsGradle, { encoding: 'utf8' }).matchAll(/includeBuild\s\'([^\']+)\'/g);
-                    while (!lter.next().done) {
-                        const pathInclude = lter.next().value[1];
-                        if (pathInclude instanceof String) {
-                            if (pathInclude.split('/').length > 0 && pathInclude.split('/')[1] === pwd) {
-                                depsAll[pwd][p] = {};
-                            }
+                    const arr = (0, fs_1.readFileSync)(settingsGradle, { encoding: 'utf-8' }).matchAll(/includeBuild\s'([^']+)'/g);
+                    for (const match of [...arr]) {
+                        const pathInclude = match[1];
+                        if (pathInclude.split('/').length > 0 &&
+                            pathInclude.split('/')[1] === pwd) {
+                            depsAll[pwd][p] = {};
                         }
                     }
                 }
-            });
-            let leaf = [];
-            let includeNodes = [];
-            changePaths.split(',').forEach(p => {
+            }
+            const leaf = [];
+            for (const p of changePaths.split(',')) {
                 const a = p.split('/')[0].trim();
                 if (ignores.includes(a)) {
-                    return;
+                    continue;
                 }
                 if ((0, fs_1.statSync)((0, path_1.join)(workspace, a)).isDirectory()) {
-                    if (includeNodes.includes(a)) {
-                        return;
-                    }
-                    if (Object.keys(depsAll[a]).length == 0) {
+                    if (Object.keys(depsAll[a]).length === 0) {
                         leaf.push(a);
                     }
                     else {
                         leaf.push(...(0, leaf_1.getInclude)(depsAll, a));
                     }
                 }
-            });
-            leaf = Array.from(new Set(leaf));
-            core.setOutput('need_ci', leaf.length > 0);
-            core.setOutput('leaf', leaf);
-            // core.setOutput('time', new Date().toTimeString())
+            }
+            core.setOutput('need_ci', leaf.length > 0 ? 'true' : 'false');
+            core.setOutput('leaf', JSON.stringify([...new Set(leaf)]));
         }
         catch (error) {
             if (error instanceof Error)
@@ -164,7 +154,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issue = exports.issueCommand = void 0;
-const os = __importStar(__nccwpck_require__(87));
+const os = __importStar(__nccwpck_require__(37));
 const utils_1 = __nccwpck_require__(278);
 /**
  * Commands
@@ -275,8 +265,8 @@ exports.getIDToken = exports.getState = exports.saveState = exports.group = expo
 const command_1 = __nccwpck_require__(351);
 const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(278);
-const os = __importStar(__nccwpck_require__(87));
-const path = __importStar(__nccwpck_require__(622));
+const os = __importStar(__nccwpck_require__(37));
+const path = __importStar(__nccwpck_require__(17));
 const oidc_utils_1 = __nccwpck_require__(41);
 /**
  * The code to exit an action
@@ -585,8 +575,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issueCommand = void 0;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const fs = __importStar(__nccwpck_require__(747));
-const os = __importStar(__nccwpck_require__(87));
+const fs = __importStar(__nccwpck_require__(147));
+const os = __importStar(__nccwpck_require__(37));
 const utils_1 = __nccwpck_require__(278);
 function issueCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
@@ -808,8 +798,8 @@ exports.PersonalAccessTokenCredentialHandler = PersonalAccessTokenCredentialHand
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const http = __nccwpck_require__(605);
-const https = __nccwpck_require__(211);
+const http = __nccwpck_require__(685);
+const https = __nccwpck_require__(687);
 const pm = __nccwpck_require__(443);
 let tunnel;
 var HttpCodes;
@@ -1426,13 +1416,13 @@ module.exports = __nccwpck_require__(219);
 "use strict";
 
 
-var net = __nccwpck_require__(631);
-var tls = __nccwpck_require__(16);
-var http = __nccwpck_require__(605);
-var https = __nccwpck_require__(211);
-var events = __nccwpck_require__(614);
-var assert = __nccwpck_require__(357);
-var util = __nccwpck_require__(669);
+var net = __nccwpck_require__(808);
+var tls = __nccwpck_require__(404);
+var http = __nccwpck_require__(685);
+var https = __nccwpck_require__(687);
+var events = __nccwpck_require__(361);
+var assert = __nccwpck_require__(491);
+var util = __nccwpck_require__(837);
 
 
 exports.httpOverHttp = httpOverHttp;
@@ -1692,7 +1682,7 @@ exports.debug = debug; // for test
 
 /***/ }),
 
-/***/ 357:
+/***/ 491:
 /***/ ((module) => {
 
 "use strict";
@@ -1700,7 +1690,7 @@ module.exports = require("assert");
 
 /***/ }),
 
-/***/ 614:
+/***/ 361:
 /***/ ((module) => {
 
 "use strict";
@@ -1708,7 +1698,7 @@ module.exports = require("events");
 
 /***/ }),
 
-/***/ 747:
+/***/ 147:
 /***/ ((module) => {
 
 "use strict";
@@ -1716,7 +1706,7 @@ module.exports = require("fs");
 
 /***/ }),
 
-/***/ 605:
+/***/ 685:
 /***/ ((module) => {
 
 "use strict";
@@ -1724,7 +1714,7 @@ module.exports = require("http");
 
 /***/ }),
 
-/***/ 211:
+/***/ 687:
 /***/ ((module) => {
 
 "use strict";
@@ -1732,7 +1722,7 @@ module.exports = require("https");
 
 /***/ }),
 
-/***/ 631:
+/***/ 808:
 /***/ ((module) => {
 
 "use strict";
@@ -1740,7 +1730,7 @@ module.exports = require("net");
 
 /***/ }),
 
-/***/ 87:
+/***/ 37:
 /***/ ((module) => {
 
 "use strict";
@@ -1748,7 +1738,7 @@ module.exports = require("os");
 
 /***/ }),
 
-/***/ 622:
+/***/ 17:
 /***/ ((module) => {
 
 "use strict";
@@ -1756,7 +1746,7 @@ module.exports = require("path");
 
 /***/ }),
 
-/***/ 16:
+/***/ 404:
 /***/ ((module) => {
 
 "use strict";
@@ -1764,7 +1754,7 @@ module.exports = require("tls");
 
 /***/ }),
 
-/***/ 669:
+/***/ 837:
 /***/ ((module) => {
 
 "use strict";

@@ -7,33 +7,41 @@ on: # rebuild any PRs and main branch changes
       - 'releases/*'
 
 jobs:
-  build: # make sure build/ci work properly
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: |
-          npm install
-      - run: |
-          npm run all
+#  build: # make sure build/ci work properly
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - run: npm install
+#      - run: npm run all
+
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
+    outputs:
+      leaf: ${{ steps.change.outputs.leaf }}
+      need_ci: ${{ steps.change.outputs.need_ci }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/checkout@v2
         with:
           repository: lwnmengjing/mono-repo-gradle
           path: monorepo
-      - uses: ./
+      - name: build
+        run: npm install && npm run build && npm run package
+
+      - id: change
+        name: self
+        uses: ./
         with:
           change-paths: '.github/workflows/test.yaml,common0/settings.gradle,common1/settings.gradle,main.py,service2/settings.gradle'
           ignore-paths: '.git,.github,.idea,.vscode,main.py,a,b'
           workspace: ${{ github.workspace }}/monorepo
+      
   service:
     runs-on: ubuntu-latest
     needs: test
     if: ${{ needs.test.outputs.need_ci }}
     strategy:
       matrix:
-        leaf: ${{ needs.test.outputs.leaf }}
+        leaf: ${{ fromJson(needs.test.outputs.leaf) }}
     steps:
       - run: echo ${{ matrix.leaf }}

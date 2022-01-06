@@ -14,6 +14,13 @@ inputs:
     required: true
     description: 'workspace'
     default: '${{ github.workspace }}'
+outputs:
+  need_ci: # id of output
+    description: 'can run next steps'
+  leaf:
+    description: 'leaf service'
+  all:
+    description: 'all'
 runs:
   using: 'node12'
   main: 'dist/index.js'
