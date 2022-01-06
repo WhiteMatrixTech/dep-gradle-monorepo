@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
+  <a href="https://github.com/lwnmengjing/dep-gradle-monorepo/actions"><img alt="dep-gradle-monorepo status" src="https://github.com/lwnmengjing/dep-gradle-monorepo/workflows/build-test/badge.svg"></a>
 </p>
 
 # Create a JavaScript Action using TypeScript
@@ -93,9 +93,11 @@ See the [versioning documentation](https://github.com/actions/toolkit/blob/maste
 You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
 
 ```yaml
-uses: ./
+uses: lwnmengjing/dep-gradle-monorepo@v0.0.1
 with:
-  milliseconds: 1000
+  change-paths: '.github/workflows/test.yaml,common0/settings.gradle,common1/settings.gradle,main.py,service2/settings.gradle'
+  ignore-paths: '.git,.github,.idea,.vscode,main.py,a,b'
+  workspace: ${{ github.workspace }}
 ```
 
 See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:

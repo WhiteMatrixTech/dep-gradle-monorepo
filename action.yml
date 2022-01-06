@@ -19,8 +19,6 @@ outputs:
     description: 'can run next steps'
   leaf:
     description: 'leaf service'
-  all:
-    description: 'all'
 runs:
   using: 'node12'
   main: 'dist/index.js'
