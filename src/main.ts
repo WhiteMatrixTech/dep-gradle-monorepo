@@ -5,8 +5,8 @@ import {join} from 'path'
 
 async function run(): Promise<void> {
   try {
-    const changePaths: string = core.getInput('change-paths')
-    const ignorePaths: string = core.getInput('ignore-paths')
+    const changePaths: string = core.getInput('change-paths') || ''
+    const ignorePaths: string = core.getInput('ignore-paths') || ''
     const workspace: string = core.getInput('workspace')
     const ignores = ignorePaths.split(',')
     const service = core.getInput('leaf')
@@ -65,7 +65,7 @@ async function run(): Promise<void> {
     }
 
     core.setOutput('need_ci', leaf.length > 0)
-    core.setOutput('leaf', JSON.stringify([...new Set(leaf)]))
+    core.setOutput('leaf', [...new Set(leaf)])
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }

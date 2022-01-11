@@ -119,7 +119,7 @@ function run() {
                 leaf.push(...service.split(','));
             }
             core.setOutput('need_ci', leaf.length > 0);
-            core.setOutput('leaf', JSON.stringify([...new Set(leaf)]));
+            core.setOutput('leaf', [...new Set(leaf)]);
         }
         catch (error) {
             if (error instanceof Error)

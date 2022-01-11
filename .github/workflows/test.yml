@@ -33,19 +33,36 @@ jobs:
       - name: build
         run: npm install && npm run build && npm run package
 
-      - id: change
+      - id: git
         name: self
         uses: ./
         with:
-          leaf: ${{ github.event.inputs.service }}
           change-paths: '.github/workflows/test.yaml,common0/settings.gradle,common1/settings.gradle,main.py,service2/settings.gradle'
           ignore-paths: '.git,.github,.idea,.vscode,main.py,a,b'
           workspace: ${{ github.workspace }}/monorepo
+      - id: dispatch
+        name: self
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: ./
+        with:
+          leaf: ${{ github.event.inputs.service }}
+          ignore-paths: '.git,.github,.idea,.vscode,main.py,a,b'
+          workspace: ${{ github.workspace }}/monorepo
+      - id: change
+        run: |
+          if [ ${{ github.event_name == 'workflow_dispatch' }} ]
+          then
+            echo "::set-output name=leaf::${{ steps.dispatch.outputs.leaf}}" 
+            echo "::set-output name=need_ci::${{ steps.dispatch.outputs.need_ci}}" 
+          else
+            echo "::set-output name=leaf::${{ steps.git.outputs.leaf}}" 
+            echo "::set-output name=need_ci::${{ steps.git.outputs.need_ci}}" 
+          fi
 
   service:
     runs-on: ubuntu-latest
     needs: test
-    if: ${{ needs.test.outputs.need_ci }}
+    if: ${{ needs.test.outputs.need_ci == true }}
     strategy:
       matrix:
         leaf: ${{ fromJson(needs.test.outputs.leaf) }}
