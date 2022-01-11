@@ -9,6 +9,7 @@ async function run(): Promise<void> {
     const ignorePaths: string = core.getInput('ignore-paths')
     const workspace: string = core.getInput('workspace')
     const ignores = ignorePaths.split(',')
+    const service = core.getInput('leaf')
 
     const dirs: string[] = []
 
@@ -59,8 +60,11 @@ async function run(): Promise<void> {
         }
       }
     }
+    if (service !== '') {
+      leaf.push(...service.split(','))
+    }
 
-    core.setOutput('need_ci', leaf.length > 0 ? 'true' : 'false')
+    core.setOutput('need_ci', leaf.length > 0)
     core.setOutput('leaf', JSON.stringify([...new Set(leaf)]))
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)

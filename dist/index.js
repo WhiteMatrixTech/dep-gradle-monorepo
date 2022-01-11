@@ -72,6 +72,7 @@ function run() {
             const ignorePaths = core.getInput('ignore-paths');
             const workspace = core.getInput('workspace');
             const ignores = ignorePaths.split(',');
+            const service = core.getInput('leaf');
             const dirs = [];
             for (const e of (0, fs_1.readdirSync)(workspace)) {
                 if ((0, fs_1.statSync)((0, path_1.join)(workspace, e)).isDirectory() && !ignores.includes(e)) {
@@ -114,7 +115,10 @@ function run() {
                     }
                 }
             }
-            core.setOutput('need_ci', leaf.length > 0 ? 'true' : 'false');
+            if (service !== '') {
+                leaf.push(...service.split(','));
+            }
+            core.setOutput('need_ci', leaf.length > 0);
             core.setOutput('leaf', JSON.stringify([...new Set(leaf)]));
         }
         catch (error) {

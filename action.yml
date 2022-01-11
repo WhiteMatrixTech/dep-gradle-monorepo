@@ -2,7 +2,11 @@ name: 'Dep Gradle Monorepo'
 description: 'scanning service on gradle monorepo'
 author: 'lwnmengjing'
 inputs:
-  change-paths: 
+  leaf:
+    required: false
+    description: 'join leaf service'
+    default: ''
+  change-paths:
     required: true
     description: 'change paths'
     default: ''
