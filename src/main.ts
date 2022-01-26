@@ -64,8 +64,15 @@ async function run(): Promise<void> {
       leaf.push(...service.split(','))
     }
 
+    const services: string[] = []
+    for (const s of [...new Set(leaf)]) {
+      if (existsSync(join(workspace, s, 'Dockerfile'))) {
+        services.push(s)
+      }
+    }
+
     core.setOutput('need_ci', leaf.length > 0)
-    core.setOutput('leaf', [...new Set(leaf)])
+    core.setOutput('leaf', services)
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
