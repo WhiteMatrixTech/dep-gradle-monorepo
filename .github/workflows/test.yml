@@ -1,15 +1,15 @@
-name: "build-test"
+name: 'build-test'
 
 on: # rebuild any PRs and main branch changes
   pull_request:
   push:
     branches:
       - main
-      - "releases/*"
+      - 'releases/*'
   workflow_dispatch:
     inputs:
       service:
-        description: "service"
+        description: 'service'
         required: true
 
 jobs:
@@ -38,8 +38,8 @@ jobs:
         name: self
         uses: ./
         with:
-          change-paths: ".github/workflows/test.yaml,common0/settings.gradle,common1/settings.gradle,main.py,service2/settings.gradle"
-          ignore-paths: ".git,.github,.idea,.vscode,main.py,a,b"
+          change-paths: '.github/workflows/test.yaml,common0/settings.gradle,common1/settings.gradle,main.py,service2/settings.gradle,service3/settings.gradle'
+          ignore-paths: '.git,.github,.idea,.vscode,main.py,a,b'
           workspace: ${{ github.workspace }}/monorepo
 
       - name: echo

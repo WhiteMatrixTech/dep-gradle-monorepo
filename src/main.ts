@@ -14,7 +14,11 @@ async function run(): Promise<void> {
     const dirs: string[] = []
 
     for (const e of readdirSync(workspace)) {
-      if (statSync(join(workspace, e)).isDirectory() && !ignores.includes(e)) {
+      if (
+        existsSync(join(workspace, e)) &&
+        statSync(join(workspace, e)).isDirectory() &&
+        !ignores.includes(e)
+      ) {
         dirs.push(e)
       }
     }
@@ -52,7 +56,10 @@ async function run(): Promise<void> {
       if (ignores.includes(a)) {
         continue
       }
-      if (statSync(join(workspace, a)).isDirectory()) {
+      if (
+        existsSync(join(workspace, a)) &&
+        statSync(join(workspace, a)).isDirectory()
+      ) {
         if (Object.keys(depsAll[a]).length === 0) {
           leaf.push(a)
         } else {
