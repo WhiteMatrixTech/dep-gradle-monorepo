@@ -1,4 +1,4 @@
-name: 'Dep Gradle Monorepo'
+name: 'Dep Gradle Monorepo Analysis'
 description: 'scanning service on gradle monorepo'
 author: 'lwnmengjing'
 inputs:
