@@ -71,10 +71,16 @@ async function run(): Promise<void> {
       leaf.push(...service.split(','))
     }
 
-    const services: string[] = []
+    const services: object[] = []
     for (const s of [...new Set(leaf)]) {
-      if (existsSync(join(workspace, s, 'Dockerfile'))) {
-        services.push(s)
+      if (
+        existsSync(join(workspace, s, 'Dockerfile')) ||
+        s.includes('lambda')
+      ) {
+        services.push({
+          name: s,
+          type: s.includes('lambda') ? 'lambda' : 'service'
+        })
       }
     }
 
