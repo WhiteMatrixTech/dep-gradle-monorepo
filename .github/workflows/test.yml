@@ -56,3 +56,5 @@ jobs:
         leaf: ${{ fromJson(needs.test.outputs.leaf) }}
     steps:
       - run: echo ${{ matrix.leaf }}
+      - run: echo ${{ matrix.leaf.name }}
+      - run: echo ${{ matrix.leaf.type }}

@@ -34,7 +34,11 @@ exports.getInclude = getInclude;
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -123,8 +127,12 @@ function run() {
             }
             const services = [];
             for (const s of [...new Set(leaf)]) {
-                if ((0, fs_1.existsSync)((0, path_1.join)(workspace, s, 'Dockerfile'))) {
-                    services.push(s);
+                if ((0, fs_1.existsSync)((0, path_1.join)(workspace, s, 'Dockerfile')) ||
+                    s.includes('lambda')) {
+                    services.push({
+                        name: s,
+                        type: s.includes('lambda') ? 'lambda' : 'service'
+                    });
                 }
             }
             core.setOutput('need_ci', leaf.length > 0);
