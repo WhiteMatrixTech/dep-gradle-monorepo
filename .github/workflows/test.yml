@@ -46,6 +46,8 @@ jobs:
         run: |
           echo ${{ steps.changed.outputs.need_ci}}
           echo ${{ steps.changed.outputs.leaf }}
+          echo ${{ steps.changed.outputs.changed }}
+          echo ${{ steps.changed.outputs.lib }}
 
   service:
     runs-on: ubuntu-latest

@@ -16,3 +16,20 @@ export function getInclude(all: dict, node: string): string[] {
   }
   return include
 }
+
+export function deleteHasInList(currList: string[], otherList: string[]) :string[] {
+  let i = currList.length
+  while (i--) {
+    let has = false
+    for (const other of otherList) {
+      if (currList[i] == other) {
+        has = true
+        break
+      }
+    }
+    if (has) {
+      currList.splice(i, 1)
+    }
+  }
+  return currList
+}

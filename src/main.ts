@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import {dict, getInclude} from './leaf'
+import {dict, getInclude, deleteHasInList} from './leaf'
 import {existsSync, readFileSync, readdirSync, statSync} from 'fs'
 import {join} from 'path'
 
@@ -50,6 +50,7 @@ async function run(): Promise<void> {
     }
 
     const leaf: string[] = []
+    const changed: string[] = []
 
     for (const p of changePaths.split(',')) {
       const a = p.split('/')[0].trim()
@@ -60,6 +61,7 @@ async function run(): Promise<void> {
         existsSync(join(workspace, a)) &&
         statSync(join(workspace, a)).isDirectory()
       ) {
+        changed.push(a)
         if (Object.keys(depsAll[a]).length === 0) {
           leaf.push(a)
         } else {
@@ -70,6 +72,8 @@ async function run(): Promise<void> {
     if (service !== '') {
       leaf.push(...service.split(','))
     }
+
+    const lib = deleteHasInList([...new Set(changed)], [...new Set(leaf)])
 
     const services: object[] = []
     for (const s of [...new Set(leaf)]) {
@@ -86,6 +90,8 @@ async function run(): Promise<void> {
 
     core.setOutput('need_ci', leaf.length > 0)
     core.setOutput('leaf', services)
+    core.setOutput('changed', [...new Set(changed)])
+    core.setOutput('lib', lib)
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }

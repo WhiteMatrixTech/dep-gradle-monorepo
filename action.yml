@@ -23,6 +23,10 @@ outputs:
     description: 'can run next steps'
   leaf:
     description: 'leaf service'
+  changed:
+    description: 'changed dir'
+  lib:
+    description: 'library dir'
 runs:
   using: 'node12'
   main: 'dist/index.js'

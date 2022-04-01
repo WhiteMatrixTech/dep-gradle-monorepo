@@ -7,7 +7,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getInclude = void 0;
+exports.deleteHasInList = exports.getInclude = void 0;
 function getInclude(all, node) {
     const include = [];
     for (const key in all[node]) {
@@ -23,6 +23,23 @@ function getInclude(all, node) {
     return include;
 }
 exports.getInclude = getInclude;
+function deleteHasInList(currList, otherList) {
+    let i = currList.length;
+    while (i--) {
+        let has = false;
+        for (const other of otherList) {
+            if (currList[i] == other) {
+                has = true;
+                break;
+            }
+        }
+        if (has) {
+            currList.splice(i, 1);
+        }
+    }
+    return currList;
+}
+exports.deleteHasInList = deleteHasInList;
 
 
 /***/ }),
@@ -107,6 +124,7 @@ function run() {
                 }
             }
             const leaf = [];
+            const changed = [];
             for (const p of changePaths.split(',')) {
                 const a = p.split('/')[0].trim();
                 if (ignores.includes(a)) {
@@ -114,6 +132,7 @@ function run() {
                 }
                 if ((0, fs_1.existsSync)((0, path_1.join)(workspace, a)) &&
                     (0, fs_1.statSync)((0, path_1.join)(workspace, a)).isDirectory()) {
+                    changed.push(a);
                     if (Object.keys(depsAll[a]).length === 0) {
                         leaf.push(a);
                     }
@@ -125,6 +144,7 @@ function run() {
             if (service !== '') {
                 leaf.push(...service.split(','));
             }
+            const lib = (0, leaf_1.deleteHasInList)([...new Set(changed)], [...new Set(leaf)]);
             const services = [];
             for (const s of [...new Set(leaf)]) {
                 if ((0, fs_1.existsSync)((0, path_1.join)(workspace, s, 'Dockerfile')) ||
@@ -137,6 +157,8 @@ function run() {
             }
             core.setOutput('need_ci', leaf.length > 0);
             core.setOutput('leaf', services);
+            core.setOutput('changed', [...new Set(changed)]);
+            core.setOutput('lib', lib);
         }
         catch (error) {
             if (error instanceof Error)
